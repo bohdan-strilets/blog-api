@@ -10,12 +10,14 @@ import { ChangeProfileDto } from './dto/change-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { EmailDto } from './dto/email.dto';
 import { SendgridService } from 'src/sendgrid/sendgrid.service';
+import { Token, TokenDocument } from 'src/token/schemas/token.schema';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private UserModel: Model<UserDocument>,
     private readonly sendgridService: SendgridService,
+    @InjectModel(Token.name) private TokenModel: Model<TokenDocument>,
   ) {}
 
   async getCurrent(id: Types.ObjectId): Promise<ResponseType<UserType> | undefined> {
@@ -186,6 +188,47 @@ export class UsersService {
       code: 200,
       success: true,
       message: 'The confirmation email has been sent again.',
+    };
+  }
+
+  async deleteProfile(id: Types.ObjectId): Promise<ResponseType | undefined> {
+    const tokens = await this.TokenModel.findOne({ owner: id });
+
+    await this.UserModel.findByIdAndRemove(id);
+    await this.TokenModel.findByIdAndRemove(tokens._id);
+
+    return {
+      status: 'success',
+      code: 200,
+      success: true,
+      message: 'Your account and all your data has been successfully deleted.',
+    };
+  }
+
+  async requestPasswordReset(emailDto: EmailDto): Promise<ResponseType | undefined> {
+    const user = await this.UserModel.findOne({ email: emailDto.email });
+
+    if (!user) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.NOT_FOUND,
+          success: false,
+          message: 'Email is wrong. Such a user does not exist.',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const name = `${user.firstName} ${user.lastName}`;
+    const mail = this.sendgridService.resetPassword(emailDto.email, name);
+    await this.sendgridService.sendEmail(mail);
+
+    return {
+      status: 'success',
+      code: 200,
+      success: true,
+      message: 'An email with a link to reset your password has been sent to your email address.',
     };
   }
 }

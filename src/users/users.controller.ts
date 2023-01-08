@@ -4,6 +4,7 @@ import {
   Get,
   Patch,
   Post,
+  Delete,
   Req,
   Body,
   Param,
@@ -68,6 +69,20 @@ export class UsersController {
   @Post('repeat-verification-email')
   async repeatVerificationEmail(@Body() emailDto: EmailDto): Promise<ResponseType | undefined> {
     const data = await this.usersService.repeatVerificationEmail(emailDto);
+    return data;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('delete-profile')
+  async deleteProfile(@Req() req: Request): Promise<ResponseType | undefined> {
+    const { id } = req.user as CreateTokenDto;
+    const data = await this.usersService.deleteProfile(id);
+    return data;
+  }
+
+  @Post('request-password-reset')
+  async requestPasswordReset(@Body() emailDto: EmailDto): Promise<ResponseType | undefined> {
+    const data = await this.usersService.requestPasswordReset(emailDto);
     return data;
   }
 }
