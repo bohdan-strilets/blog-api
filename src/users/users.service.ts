@@ -6,11 +6,14 @@ import { v4 } from 'uuid';
 import { User, UserDocument } from './schemas/user.schema';
 import { ResponseType } from 'src/auth/types/response.type';
 import { UserType } from 'src/auth/types/user.type';
+import { TokensType } from 'src/auth/types/tokens.type';
 import { ChangeProfileDto } from './dto/change-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { EmailDto } from './dto/email.dto';
 import { SendgridService } from 'src/sendgrid/sendgrid.service';
 import { Token, TokenDocument } from 'src/token/schemas/token.schema';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { TokenService } from 'src/token/token.service';
 
 @Injectable()
 export class UsersService {
@@ -18,6 +21,7 @@ export class UsersService {
     @InjectModel(User.name) private UserModel: Model<UserDocument>,
     private readonly sendgridService: SendgridService,
     @InjectModel(Token.name) private TokenModel: Model<TokenDocument>,
+    private readonly tokenService: TokenService,
   ) {}
 
   async getCurrent(id: Types.ObjectId): Promise<ResponseType<UserType> | undefined> {
@@ -229,6 +233,73 @@ export class UsersService {
       code: 200,
       success: true,
       message: 'An email with a link to reset your password has been sent to your email address.',
+    };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<ResponseType | undefined> {
+    const user = await this.UserModel.findOne({ email: resetPasswordDto.email });
+
+    if (!user) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.NOT_FOUND,
+          success: false,
+          message: 'Invalid email. There is no user with this email address.',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const hashPassword = bcrypt.hashSync(resetPasswordDto.password, bcrypt.genSaltSync(10));
+    await this.UserModel.findByIdAndUpdate(user._id, { password: hashPassword });
+
+    return {
+      status: 'success',
+      code: 200,
+      success: true,
+      message: 'The password has been successfully changed.',
+    };
+  }
+
+  async refreshUser(refreshToken: string): Promise<ResponseType<TokensType> | undefined> {
+    if (!refreshToken) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.UNAUTHORIZED,
+          success: false,
+          message: 'User not authorized.',
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const userData = this.tokenService.checkRefreshToken(refreshToken);
+    const user = await this.UserModel.findById(userData.id);
+    const tokenFromDb = await this.tokenService.findRefreshTokenDb(userData.id);
+    const payload = this.tokenService.createPayload(user);
+
+    if (!userData || !tokenFromDb) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.UNAUTHORIZED,
+          success: false,
+          message: 'User not authorized.',
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const tokens = await this.tokenService.createTokens(payload);
+
+    return {
+      status: 'success',
+      code: 200,
+      success: true,
+      message: '',
+      tokens,
     };
   }
 }

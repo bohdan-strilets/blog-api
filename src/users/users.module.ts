@@ -5,12 +5,14 @@ import { UsersController } from './users.controller';
 import { User, UserSchema } from './schemas/user.schema';
 import { SendgridModule } from 'src/sendgrid/sendgrid.module';
 import { Token, TokenSchema } from 'src/token/schemas/token.schema';
+import { TokenModule } from 'src/token/token.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     SendgridModule,
     MongooseModule.forFeature([{ name: Token.name, schema: TokenSchema }]),
+    TokenModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],
