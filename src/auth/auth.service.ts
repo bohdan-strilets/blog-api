@@ -39,9 +39,9 @@ export class AuthService {
 
     const activationToken = v4();
     const avatarURL =
-      'https://res.cloudinary.com/ddd1vgg5b/image/upload/v1673106461/programmer-blog/users/avatars/lk9ai1ybtukgb0zuznvl.jpg';
+      'https://res.cloudinary.com/ddd1vgg5b/image/upload/v1673171280/blog/users/avatars/lui3rrpwupwsisnedj7j.jpg';
     const backgroundURL =
-      'https://res.cloudinary.com/ddd1vgg5b/image/upload/v1673106480/programmer-blog/users/backgrounds/apr1efrnhnuhfdtumohc.jpg';
+      'https://res.cloudinary.com/ddd1vgg5b/image/upload/v1673171271/blog/users/backgrounds/w5n3l3moegsgqk3dahv0.jpg';
     const hashPassword = bcrypt.hashSync(registrationDto.password, bcrypt.genSaltSync(10));
 
     const newUser = await this.UserModel.create({
