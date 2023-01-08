@@ -7,7 +7,7 @@ import { Token, TokenSchema } from './schemas/token.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Token.name, schema: TokenSchema }]),
-    JwtModule.register({}),
+    JwtModule.register({ secret: process.env.ACCESS_TOKEN_KEY, signOptions: { expiresIn: '1h' } }),
   ],
   providers: [TokenService],
   exports: [TokenService],
