@@ -3,11 +3,13 @@ import {
   UseGuards,
   Get,
   Patch,
+  Post,
   Req,
   Body,
   Param,
   Redirect,
   HttpStatus,
+  HttpCode,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
@@ -17,6 +19,7 @@ import { CreateTokenDto } from 'src/token/dto/create-tokens.dto';
 import { ChangeProfileDto } from './dto/change-profile.dto';
 import { UsersService } from './users.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { EmailDto } from './dto/email.dto';
 
 @Controller('users')
 export class UsersController {
@@ -58,6 +61,13 @@ export class UsersController {
     @Param('activationToken') activationToken: string,
   ): Promise<ResponseType | undefined> {
     const data = await this.usersService.verificationEmail(activationToken);
+    return data;
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('repeat-verification-email')
+  async repeatVerificationEmail(@Body() emailDto: EmailDto): Promise<ResponseType | undefined> {
+    const data = await this.usersService.repeatVerificationEmail(emailDto);
     return data;
   }
 }

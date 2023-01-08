@@ -2,15 +2,21 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { v4 } from 'uuid';
 import { User, UserDocument } from './schemas/user.schema';
 import { ResponseType } from 'src/auth/types/response.type';
 import { UserType } from 'src/auth/types/user.type';
 import { ChangeProfileDto } from './dto/change-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { EmailDto } from './dto/email.dto';
+import { SendgridService } from 'src/sendgrid/sendgrid.service';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private UserModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private UserModel: Model<UserDocument>,
+    private readonly sendgridService: SendgridService,
+  ) {}
 
   async getCurrent(id: Types.ObjectId): Promise<ResponseType<UserType> | undefined> {
     const user = await this.UserModel.findById(id);
@@ -152,6 +158,34 @@ export class UsersService {
       code: 308,
       success: true,
       message: 'You have successfully verified your email address.',
+    };
+  }
+
+  async repeatVerificationEmail(emailDto: EmailDto): Promise<ResponseType | undefined> {
+    const user = await this.UserModel.findOne({ email: emailDto.email });
+
+    if (!user) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.NOT_FOUND,
+          success: false,
+          message: 'User not found.',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const activationToken = v4();
+    const mail = this.sendgridService.confirmEmail(emailDto.email, activationToken);
+    await this.sendgridService.sendEmail(mail);
+    await this.UserModel.findByIdAndUpdate(user._id, { activationToken });
+
+    return {
+      status: 'success',
+      code: 200,
+      success: true,
+      message: 'The confirmation email has been sent again.',
     };
   }
 }
