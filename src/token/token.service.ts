@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Token, TokenDocument } from './schemas/token.schema';
 import { UserDocument } from 'src/users/schemas/user.schema';
 import { CreateTokenDto } from './dto/create-tokens.dto';
-import { TokensType } from 'src/auth/type/tokens.type';
+import { TokensType } from 'src/auth/types/tokens.type';
 
 @Injectable()
 export class TokenService {
