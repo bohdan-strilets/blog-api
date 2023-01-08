@@ -1,36 +1,42 @@
-import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
 export type UserDocument = HydratedDocument<User>;
 
+@Schema({ versionKey: false, _id: false })
+export class Adress {
+  @Prop({ default: '' })
+  country: string;
+
+  @Prop({ default: '' })
+  city: string;
+
+  @Prop({ default: '' })
+  postcode: string;
+}
+
 @Schema({ versionKey: false, timestamps: true })
 export class User {
-  @Prop({ required: true })
+  @Prop({ required: true, minlength: 3, maxlength: 30 })
   firstName: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, minlength: 3, maxlength: 30 })
   lastName: string;
 
   @Prop({ required: true })
   password: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   email: string;
 
-  @Prop({ default: '2001-01-01' })
-  dateBirth: string;
+  @Prop({ default: new Date() })
+  dateBirth: Date;
 
-  @Prop({ default: 'other' })
+  @Prop({ default: 'other', enum: ['man', 'woman', 'other'] })
   gender: 'man' | 'woman' | 'other';
 
-  @Prop(
-    raw({
-      country: { type: String },
-      city: { type: String },
-      postcode: { type: String },
-    }),
-  )
-  adress: Record<string, any>;
+  @Prop({ default: {} })
+  adress: Adress;
 
   @Prop({ default: '' })
   phoneNumber: string;
@@ -64,6 +70,12 @@ export class User {
 
   @Prop({ default: false })
   isActivated: boolean;
+
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  updatedAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

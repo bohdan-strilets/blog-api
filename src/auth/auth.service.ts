@@ -71,6 +71,7 @@ export class AuthService {
         email: newUser.email,
         dateBirth: newUser.dateBirth,
         gender: newUser.gender,
+        adress: newUser.adress,
         phoneNumber: newUser.phoneNumber,
         profession: newUser.profession,
         avatarURL: newUser.avatarURL,
@@ -81,6 +82,8 @@ export class AuthService {
         stories: newUser.stories,
         statistics: newUser.statistics,
         isActivated: newUser.isActivated,
+        createdAt: newUser.createdAt,
+        updatedAt: newUser.updatedAt,
       },
     };
   }
@@ -118,6 +121,7 @@ export class AuthService {
         email: user.email,
         dateBirth: user.dateBirth,
         gender: user.gender,
+        adress: user.adress,
         phoneNumber: user.phoneNumber,
         profession: user.profession,
         avatarURL: user.avatarURL,
@@ -128,6 +132,8 @@ export class AuthService {
         stories: user.stories,
         statistics: user.statistics,
         isActivated: user.isActivated,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       },
     };
   }
