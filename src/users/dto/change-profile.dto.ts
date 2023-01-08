@@ -9,7 +9,6 @@ import {
   IsPostalCode,
   IsObject,
   IsNotEmptyObject,
-  IsMobilePhone,
   ArrayUnique,
 } from 'class-validator';
 
