@@ -69,6 +69,28 @@ export class TokenService {
     }
   }
 
+  checkAccessToken(accessToken: string): CreateTokenDto | null {
+    const payload = this.jwtService.verify(accessToken, {
+      secret: process.env.ACCESS_TOKEN_KEY,
+    });
+
+    if (payload) {
+      return payload;
+    } else {
+      return null;
+    }
+  }
+
+  async findAccessTokenDb(userId: Types.ObjectId) {
+    const token = await this.TokenModel.findOne({ owner: userId });
+
+    if (token) {
+      return token;
+    } else {
+      return null;
+    }
+  }
+
   async deleteTokensFromDb(refreshToken: string): Promise<void> {
     const { _id } = await this.TokenModel.findOne({ refreshToken });
     await this.TokenModel.findByIdAndRemove(_id);
