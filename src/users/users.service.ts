@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { v4 } from 'uuid';
+import * as fs from 'fs/promises';
 import { User, UserDocument } from './schemas/user.schema';
 import { ResponseType } from 'src/auth/types/response.type';
 import { UserType } from 'src/auth/types/user.type';
@@ -14,6 +15,7 @@ import { SendgridService } from 'src/sendgrid/sendgrid.service';
 import { Token, TokenDocument } from 'src/token/schemas/token.schema';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { TokenService } from 'src/token/token.service';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class UsersService {
@@ -22,6 +24,7 @@ export class UsersService {
     private readonly sendgridService: SendgridService,
     @InjectModel(Token.name) private TokenModel: Model<TokenDocument>,
     private readonly tokenService: TokenService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async getCurrent(id: Types.ObjectId): Promise<ResponseType<UserType> | undefined> {
@@ -301,5 +304,49 @@ export class UsersService {
       message: '',
       tokens,
     };
+  }
+
+  async changeAvatar(
+    file: Express.Multer.File,
+    id: Types.ObjectId,
+  ): Promise<ResponseType<string> | undefined> {
+    const folder = 'blog/users/avatars';
+    const cloudinaryRes = await this.cloudinaryService.uploadImage(file, folder);
+
+    if (cloudinaryRes) {
+      fs.unlink(file.path);
+    }
+
+    await this.UserModel.findByIdAndUpdate(id, { avatarURL: cloudinaryRes.url });
+
+    return {
+      status: 'success',
+      code: 200,
+      success: true,
+      message: '',
+      imageURL: cloudinaryRes.url,
+    };
+  }
+
+  async changeBackground(
+    file: Express.Multer.File,
+    id: Types.ObjectId,
+  ): Promise<ResponseType<string> | undefined> {
+    const folder = 'blog/users/backgrounds';
+    const cloudinaryRes = await this.cloudinaryService.uploadImage(file, folder);
+
+    if (cloudinaryRes) {
+      fs.unlink(file.path);
+    }
+
+    await this.UserModel.findByIdAndUpdate(id, { backgroundURL: cloudinaryRes.url });
+
+  return {
+    status: 'success',
+    code: 200,
+    success: true,
+    message: '',
+    imageURL: cloudinaryRes.url,
+  };
   }
 }

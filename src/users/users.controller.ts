@@ -12,8 +12,14 @@ import {
   Redirect,
   HttpStatus,
   HttpCode,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { UserType } from 'src/auth/types/user.type';
 import { TokensType } from 'src/auth/types/tokens.type';
@@ -110,6 +116,48 @@ export class UsersController {
     res.cookie('refreshToken', data.tokens.refreshToken, {
       maxAge: 15 * 24 * 60 * 60 * 1000,
     });
+    return data;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('change-avatar')
+  @UseInterceptors(FileInterceptor('user-avatar', { dest: 'src/public' }))
+  async changeAvatar(
+    @Req() req: Request,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 4 }),
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|webp)' }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ): Promise<ResponseType<string> | undefined> {
+    const { id } = req.user as CreateTokenDto;
+    const data = await this.usersService.changeAvatar(file, id);
+    return data;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('change-background')
+  @UseInterceptors(FileInterceptor('user-background', { dest: 'src/public' }))
+  async changeBackground(
+    @Req() req: Request,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 4 }),
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|webp)' }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ): Promise<ResponseType<string> | undefined> {
+    const { id } = req.user as CreateTokenDto;
+    const data = await this.usersService.changeBackground(file, id);
     return data;
   }
 }

@@ -6,6 +6,7 @@ import { User, UserSchema } from './schemas/user.schema';
 import { SendgridModule } from 'src/sendgrid/sendgrid.module';
 import { Token, TokenSchema } from 'src/token/schemas/token.schema';
 import { TokenModule } from 'src/token/token.module';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { TokenModule } from 'src/token/token.module';
     SendgridModule,
     MongooseModule.forFeature([{ name: Token.name, schema: TokenSchema }]),
     TokenModule,
+    CloudinaryModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],

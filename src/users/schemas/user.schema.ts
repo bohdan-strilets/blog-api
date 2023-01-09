@@ -1,19 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { Adress } from './adress.schema';
 
 export type UserDocument = HydratedDocument<User>;
-
-@Schema({ versionKey: false, _id: false })
-export class Adress {
-  @Prop({ default: '' })
-  country: string;
-
-  @Prop({ default: '' })
-  city: string;
-
-  @Prop({ default: '' })
-  postcode: string;
-}
 
 @Schema({ versionKey: false, timestamps: true })
 export class User {
