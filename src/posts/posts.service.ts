@@ -4,6 +4,7 @@ import { Model, Types } from 'mongoose';
 import { Post, PostDocument } from './schemas/post.schema';
 import { ResponseType } from './types/response.type';
 import { PostType } from './types/post.type';
+import { CreatePostDto } from './dto/create-post.dto';
 
 @Injectable()
 export class PostsService {
@@ -11,7 +12,7 @@ export class PostsService {
 
   async getAllPostsUser(
     id: Types.ObjectId,
-    favorite: string,
+    favorite: boolean,
   ): Promise<ResponseType<PostType[]> | undefined> {
     if (favorite) {
       const favoritePosts = await this.PostModel.find({ owner: id, isFavorite: true });
@@ -60,6 +61,23 @@ export class PostsService {
       success: true,
       message: '',
       data: post,
+    };
+  }
+
+  async createPost(
+    id: Types.ObjectId,
+    createPostDto: CreatePostDto,
+  ): Promise<ResponseType<PostType> | undefined> {
+    const backgroundURL =
+      'https://res.cloudinary.com/ddd1vgg5b/image/upload/v1673364791/blog/posts/backgrounds/nzy91revphdejb9bgnv8.jpg';
+    const newPost = await this.PostModel.create({ ...createPostDto, backgroundURL, owner: id });
+
+    return {
+      status: 'success',
+      code: 201,
+      success: true,
+      message: '',
+      data: newPost,
     };
   }
 }
