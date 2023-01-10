@@ -6,6 +6,14 @@ type Adress = {
   postcode: string;
 };
 
+type SocialMedia = {
+  facebook: string;
+  instagram: string;
+  linkedin: string;
+  twitter: string;
+  github: string;
+};
+
 export type UserType = {
   _id: Types.ObjectId;
   firstName: string;
@@ -14,15 +22,13 @@ export type UserType = {
   dateBirth: Date;
   gender: 'man' | 'woman' | 'other';
   adress: Adress;
+  socialMedia: SocialMedia;
   phoneNumber: string;
   profession: string;
+  description: string;
   avatarURL: string;
   backgroundURL: string;
   hobby: string[];
-  posts: any[];
-  projects: any[];
-  stories: any[];
-  statistics: any[];
   isActivated: boolean;
   createdAt: Date;
   updatedAt: Date;

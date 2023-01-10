@@ -10,6 +10,7 @@ import {
   IsObject,
   IsNotEmptyObject,
   ArrayUnique,
+  IsUrl,
 } from 'class-validator';
 
 class Adress {
@@ -22,6 +23,28 @@ class Adress {
   @IsString()
   @IsPostalCode()
   postcode: string;
+}
+
+class SocialMedia {
+  @IsString()
+  @IsUrl()
+  facebook: string;
+
+  @IsString()
+  @IsUrl()
+  instagram: string;
+
+  @IsString()
+  @IsUrl()
+  linkedin: string;
+
+  @IsString()
+  @IsUrl()
+  twitter: string;
+
+  @IsString()
+  @IsUrl()
+  github: string;
 }
 
 export class ChangeProfileDto {
@@ -56,6 +79,11 @@ export class ChangeProfileDto {
   @IsNotEmptyObject()
   adress: Adress;
 
+  @IsOptional()
+  @IsObject()
+  @IsNotEmptyObject()
+  socialMedia: SocialMedia;
+
   @IsString()
   @IsOptional()
   phoneNumber: string;
@@ -63,6 +91,10 @@ export class ChangeProfileDto {
   @IsString()
   @IsOptional()
   profession: string;
+
+  @IsString()
+  @IsOptional()
+  description: string;
 
   @IsArray()
   @IsOptional()

@@ -42,15 +42,13 @@ export class UsersService {
         dateBirth: user.dateBirth,
         gender: user.gender,
         adress: user.adress,
+        socialMedia: user.socialMedia,
         phoneNumber: user.phoneNumber,
         profession: user.profession,
+        description: user.description,
         avatarURL: user.avatarURL,
         backgroundURL: user.backgroundURL,
         hobby: user.hobby,
-        posts: user.posts,
-        projects: user.projects,
-        stories: user.stories,
-        statistics: user.statistics,
         isActivated: user.isActivated,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
@@ -88,15 +86,13 @@ export class UsersService {
         dateBirth: newUser.dateBirth,
         gender: newUser.gender,
         adress: newUser.adress,
+        socialMedia: newUser.socialMedia,
         phoneNumber: newUser.phoneNumber,
         profession: newUser.profession,
+        description: newUser.description,
         avatarURL: newUser.avatarURL,
         backgroundURL: newUser.backgroundURL,
         hobby: newUser.hobby,
-        posts: newUser.posts,
-        projects: newUser.projects,
-        stories: newUser.stories,
-        statistics: newUser.statistics,
         isActivated: newUser.isActivated,
         createdAt: newUser.createdAt,
         updatedAt: newUser.updatedAt,
@@ -341,12 +337,12 @@ export class UsersService {
 
     await this.UserModel.findByIdAndUpdate(id, { backgroundURL: cloudinaryRes.url });
 
-  return {
-    status: 'success',
-    code: 200,
-    success: true,
-    message: '',
-    imageURL: cloudinaryRes.url,
-  };
+    return {
+      status: 'success',
+      code: 200,
+      success: true,
+      message: '',
+      imageURL: cloudinaryRes.url,
+    };
   }
 }

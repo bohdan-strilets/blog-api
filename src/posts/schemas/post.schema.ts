@@ -11,25 +11,28 @@ export class Post {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   owner: User;
 
-  @Prop()
+  @Prop({ required: true })
   title: string;
 
-  @Prop()
+  @Prop({ required: true })
   body: PostBodyType[];
 
-  @Prop()
+  @Prop({ required: true })
   category: string[];
 
-  @Prop()
+  @Prop({ default: {} })
   statistics: PostStatistics;
 
-  @Prop()
+  @Prop({ default: false })
   isPublic: boolean;
 
-  @Prop()
+  @Prop({ default: false })
+  isFavorite: boolean;
+
+  @Prop({ required: true })
   backgroundURL: string;
 
-  @Prop()
+  @Prop({ default: [] })
   imagesURLs: string[];
 }
 

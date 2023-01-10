@@ -3,18 +3,18 @@ import { CommentsType } from '../types/comments.type';
 
 @Schema({ versionKey: false, _id: false })
 export class PostStatistics {
-  @Prop()
+  @Prop({ default: 0 })
   numberLikes: number;
 
-  @Prop()
+  @Prop({ default: 0 })
   numberViews: number;
 
-  @Prop()
+  @Prop({ default: 0 })
   numberComments: number;
 
-  @Prop()
+  @Prop({ default: [] })
   comments: CommentsType[];
 
-  @Prop()
+  @Prop({ default: [] })
   tags: string[];
 }

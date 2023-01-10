@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Adress } from './adress.schema';
+import { SocialMedia } from './social-media.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -27,11 +28,17 @@ export class User {
   @Prop({ default: {} })
   adress: Adress;
 
+  @Prop({ default: {} })
+  socialMedia: SocialMedia;
+
   @Prop({ default: '' })
   phoneNumber: string;
 
   @Prop({ default: '' })
   profession: string;
+
+  @Prop({ default: '' })
+  description: string;
 
   @Prop({ default: [], type: Array })
   hobby: string[];
@@ -41,18 +48,6 @@ export class User {
 
   @Prop({ default: '' })
   backgroundURL: string;
-
-  @Prop({ default: [] })
-  posts: any[];
-
-  @Prop({ default: [] })
-  projects: any[];
-
-  @Prop({ default: [] })
-  stories: any[];
-
-  @Prop({ default: [] })
-  statistics: any[];
 
   @Prop({ required: true })
   activationToken: string;

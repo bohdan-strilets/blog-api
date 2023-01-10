@@ -66,7 +66,7 @@ export class UsersController {
   }
 
   @Get('verification-email/:activationToken')
-  @Redirect(process.env.CLIENT_URL, HttpStatus.PERMANENT_REDIRECT)
+  @Redirect('http://localhost:3000', HttpStatus.PERMANENT_REDIRECT)
   async verificationEmail(
     @Param('activationToken') activationToken: string,
   ): Promise<ResponseType | undefined> {
