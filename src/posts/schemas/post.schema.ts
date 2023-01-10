@@ -33,7 +33,13 @@ export class Post {
   backgroundURL: string;
 
   @Prop({ default: [] })
-  imagesURLs: string[];
+  imagesURL: string[];
+
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  updatedAt: Date;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);
