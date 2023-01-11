@@ -132,4 +132,100 @@ export class PostsService {
       data: post,
     };
   }
+
+  async updateFavorite(postId: string): Promise<ResponseType<PostType> | undefined> {
+    const post = await this.PostModel.findById(postId);
+
+    if (!post) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.NOT_FOUND,
+          success: false,
+          message: 'Post with current id not found.',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    if (post.isFavorite) {
+      const newPost = await this.PostModel.findByIdAndUpdate(
+        postId,
+        { isFavorite: false },
+        { new: true },
+      );
+
+      return {
+        status: 'success',
+        code: 200,
+        success: true,
+        message: '',
+        data: newPost,
+      };
+    }
+
+    if (!post.isFavorite) {
+      const newPost = await this.PostModel.findByIdAndUpdate(
+        postId,
+        { isFavorite: true },
+        { new: true },
+      );
+
+      return {
+        status: 'success',
+        code: 200,
+        success: true,
+        message: '',
+        data: newPost,
+      };
+    }
+  }
+
+  async updatePublic(postId: string): Promise<ResponseType<PostType> | undefined> {
+    const post = await this.PostModel.findById(postId);
+
+    if (!post) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.NOT_FOUND,
+          success: false,
+          message: 'Post with current id not found.',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    if (post.isPublic) {
+      const newPost = await this.PostModel.findByIdAndUpdate(
+        postId,
+        { isPublic: false },
+        { new: true },
+      );
+
+      return {
+        status: 'success',
+        code: 200,
+        success: true,
+        message: '',
+        data: newPost,
+      };
+    }
+
+    if (!post.isPublic) {
+      const newPost = await this.PostModel.findByIdAndUpdate(
+        postId,
+        { isPublic: true },
+        { new: true },
+      );
+
+      return {
+        status: 'success',
+        code: 200,
+        success: true,
+        message: '',
+        data: newPost,
+      };
+    }
+  }
 }

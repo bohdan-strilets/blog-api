@@ -9,6 +9,7 @@ import {
   Param,
   Body,
   Delete,
+  Patch,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
@@ -64,6 +65,20 @@ export class PostsController {
   @Delete('delete-post/:postId')
   async deletePost(@Param('postId') postId: string): Promise<ResponseType<PostType> | undefined> {
     const data = await this.postsService.deletePost(postId);
+    return data;
+  }
+
+  @Patch('update-favorite/:postId')
+  async updateFavorite(
+    @Param('postId') postId: string,
+  ): Promise<ResponseType<PostType> | undefined> {
+    const data = await this.postsService.updateFavorite(postId);
+    return data;
+  }
+
+  @Patch('update-public/:postId')
+  async updatePublic(@Param('postId') postId: string): Promise<ResponseType<PostType> | undefined> {
+    const data = await this.postsService.updatePublic(postId);
     return data;
   }
 }
