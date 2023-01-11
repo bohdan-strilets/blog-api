@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Put, Req, UseGuards, Query, Param, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+  Query,
+  Param,
+  Body,
+  Delete,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { CreateTokenDto } from 'src/token/dto/create-tokens.dto';
@@ -47,6 +58,12 @@ export class PostsController {
     @Body() updatePostDto: UpdatePostDto,
   ): Promise<ResponseType<PostType> | undefined> {
     const data = await this.postsService.updatePost(updatePostDto, postId);
+    return data;
+  }
+
+  @Delete('delete-post/:postId')
+  async deletePost(@Param('postId') postId: string): Promise<ResponseType<PostType> | undefined> {
+    const data = await this.postsService.deletePost(postId);
     return data;
   }
 }

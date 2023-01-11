@@ -108,4 +108,28 @@ export class PostsService {
       data: newPost,
     };
   }
+
+  async deletePost(postId: string): Promise<ResponseType<PostType> | undefined> {
+    const post = await this.PostModel.findByIdAndDelete(postId);
+
+    if (!post) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.NOT_FOUND,
+          success: false,
+          message: 'Post with current id not found.',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return {
+      status: 'success',
+      code: 200,
+      success: true,
+      message: 'Post successful deleted.',
+      data: post,
+    };
+  }
 }
