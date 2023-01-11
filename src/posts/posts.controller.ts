@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Req, UseGuards, Query, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Put, Req, UseGuards, Query, Param, Body } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { CreateTokenDto } from 'src/token/dto/create-tokens.dto';
@@ -6,6 +6,7 @@ import { PostsService } from './posts.service';
 import { ResponseType } from './types/response.type';
 import { PostType } from './types/post.type';
 import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post-dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('posts')
@@ -30,13 +31,22 @@ export class PostsController {
     return data;
   }
 
-  @Post('create')
+  @Post('create-post')
   async createPost(
     @Req() req: Request,
     @Body() createPostDto: CreatePostDto,
   ): Promise<ResponseType<PostType> | undefined> {
     const { id } = req.user as CreateTokenDto;
     const data = await this.postsService.createPost(id, createPostDto);
+    return data;
+  }
+
+  @Put('update-post/:postId')
+  async updatePost(
+    @Param('postId') postId: string,
+    @Body() updatePostDto: UpdatePostDto,
+  ): Promise<ResponseType<PostType> | undefined> {
+    const data = await this.postsService.updatePost(updatePostDto, postId);
     return data;
   }
 }

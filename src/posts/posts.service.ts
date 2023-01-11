@@ -5,6 +5,7 @@ import { Post, PostDocument } from './schemas/post.schema';
 import { ResponseType } from './types/response.type';
 import { PostType } from './types/post.type';
 import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post-dto';
 
 @Injectable()
 export class PostsService {
@@ -75,6 +76,33 @@ export class PostsService {
     return {
       status: 'success',
       code: 201,
+      success: true,
+      message: '',
+      data: newPost,
+    };
+  }
+
+  async updatePost(
+    updatePostDto: UpdatePostDto,
+    postId: string,
+  ): Promise<ResponseType<PostType> | undefined> {
+    const newPost = await this.PostModel.findByIdAndUpdate(postId, updatePostDto, { new: true });
+
+    if (!newPost) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.NOT_FOUND,
+          success: false,
+          message: 'Post with current id not found.',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return {
+      status: 'success',
+      code: 200,
       success: true,
       message: '',
       data: newPost,
