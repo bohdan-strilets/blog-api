@@ -489,4 +489,41 @@ export class PostsService {
       data: newPost,
     };
   }
+
+  async deleteComment(
+    postId: string,
+    commentId: string,
+  ): Promise<ResponseType<PostType> | undefined> {
+    const post = await this.PostModel.findById(postId);
+
+    if (!post) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.NOT_FOUND,
+          success: false,
+          message: 'Post with current id not found.',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const result = post.statistics.comments.filter(item => item.id !== commentId);
+
+    const newPost = await this.PostModel.findByIdAndUpdate(
+      postId,
+      {
+        statistics: { comments: result },
+      },
+      { new: true },
+    );
+
+    return {
+      status: 'success',
+      code: 200,
+      success: true,
+      message: '',
+      data: newPost,
+    };
+  }
 }

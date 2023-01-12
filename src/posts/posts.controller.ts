@@ -157,4 +157,13 @@ export class PostsController {
     const data = await this.postsService.changeComment(postId, commentId, changeCommentDto);
     return data;
   }
+
+  @Delete('delete-comment')
+  async deleteComment(
+    @Param('postId') postId: string,
+    @Param('commentId') commentId: string,
+  ): Promise<ResponseType<PostType> | undefined> {
+    const data = await this.deleteComment(postId, commentId);
+    return data;
+  }
 }
