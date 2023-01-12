@@ -1,6 +1,9 @@
+import { Types } from 'mongoose';
+
 export type CommentsType = {
-  owner: string;
+  id: string;
+  owner: Types.ObjectId;
   text: string;
-  numberLikes: string;
+  numberLikes: number;
   answers?: CommentsType[];
 };

@@ -9,6 +9,14 @@ import {
   Param,
   Body,
   Delete,
+  HttpCode,
+  HttpStatus,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
+  UploadedFiles,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
@@ -18,6 +26,8 @@ import { ResponseType } from './types/response.type';
 import { PostType } from './types/post.type';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post-dto';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { CreateCommentDto } from './dto/create-comment.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('posts')
@@ -94,6 +104,46 @@ export class PostsController {
   @Get('add-view/:postId')
   async addView(@Param('postId') postId: string): Promise<ResponseType<PostType> | undefined> {
     const data = await this.postsService.addView(postId);
+    return data;
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('change-background/:postId')
+  @UseInterceptors(FileInterceptor('post-background', { dest: 'src/public' }))
+  async changeBackground(
+    @Param('postId') postId: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 4 }),
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|webp)' }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ): Promise<ResponseType<PostType> | undefined> {
+    const data = this.postsService.changeBackground(file, postId);
+    return data;
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('change-images/:postId')
+  @UseInterceptors(FilesInterceptor('post-images', 5, { dest: 'src/public' }))
+  async changeImages(
+    @Param('postId') postId: string,
+    @UploadedFiles()
+    files: Array<Express.Multer.File>,
+  ): Promise<ResponseType<PostType> | undefined> {
+    const data = await this.postsService.changeImages(files, postId);
+    return data;
+  }
+
+  @Post('create-comment/:postId')
+  async createComment(
+    @Param('postId') postId: string,
+    @Body() createCommentDto: CreateCommentDto,
+  ): Promise<ResponseType<PostType> | undefined> {
+    const data = await this.postsService.createComment(postId, createCommentDto);
     return data;
   }
 }

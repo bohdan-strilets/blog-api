@@ -1,18 +1,23 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import * as fs from 'fs/promises';
+import { v4 } from 'uuid';
 import { Post, PostDocument } from './schemas/post.schema';
 import { ResponseType } from './types/response.type';
 import { PostType } from './types/post.type';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post-dto';
 import { User, UserDocument } from 'src/users/schemas/user.schema';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { CreateCommentDto } from './dto/create-comment.dto';
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectModel(Post.name) private PostModel: Model<PostDocument>,
     @InjectModel(User.name) private UserModel: Model<UserDocument>,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async getAllPostsUser(
@@ -329,6 +334,110 @@ export class PostsService {
       success: true,
       message: '',
       data: post,
+    };
+  }
+
+  async changeBackground(
+    file: Express.Multer.File,
+    postId: string,
+  ): Promise<ResponseType<PostType> | undefined> {
+    const folder = 'blog/posts/backgrounds';
+    const cloudinaryRes = await this.cloudinaryService.uploadImage(file, folder);
+
+    if (cloudinaryRes) {
+      fs.unlink(file.path);
+    }
+
+    const post = await this.PostModel.findByIdAndUpdate(
+      postId,
+      {
+        backgroundURL: cloudinaryRes.url,
+      },
+      { new: true },
+    );
+
+    return {
+      status: 'success',
+      code: 200,
+      success: true,
+      message: '',
+      data: post,
+    };
+  }
+
+  async changeImages(
+    files: Array<Express.Multer.File>,
+    postId: string,
+  ): Promise<ResponseType<PostType> | undefined> {
+    const folder = 'blog/posts/images';
+    const imagesURL = [];
+
+    const cloudinaryRes = await Promise.all(
+      files.map(async item => await this.cloudinaryService.uploadImage(item, folder)),
+    );
+
+    cloudinaryRes.map(item => imagesURL.push(item.url));
+
+    if (cloudinaryRes) {
+      files.map(item => fs.unlink(item.path));
+    }
+
+    const post = await this.PostModel.findByIdAndUpdate(postId, { imagesURL }, { new: true });
+
+    return {
+      status: 'success',
+      code: 200,
+      success: true,
+      message: '',
+      data: post,
+    };
+  }
+
+  async createComment(
+    postId: string,
+    createCommentDto: CreateCommentDto,
+  ): Promise<ResponseType<PostType> | undefined> {
+    const post = await this.PostModel.findById(postId);
+
+    if (!post) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.NOT_FOUND,
+          success: false,
+          message: 'Post with current id not found.',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const comment = {
+      id: v4(),
+      owner: post.owner,
+      text: createCommentDto.text,
+      numberLikes: 0,
+      answers: [],
+    };
+
+    const newPost = await this.PostModel.findByIdAndUpdate(
+      postId,
+      {
+        statistics: {
+          comments: [...post.statistics.comments, comment],
+          $inc: {
+            'statistics.numberComments': 1,
+          },
+        },
+      },
+      { new: true },
+    );
+
+    return {
+      status: 'success',
+      code: 200,
+      success: true,
+      message: '',
+      data: newPost,
     };
   }
 }
