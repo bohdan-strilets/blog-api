@@ -28,6 +28,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post-dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { ChangeCommentDto } from './dto/change-post.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('posts')
@@ -144,6 +145,16 @@ export class PostsController {
     @Body() createCommentDto: CreateCommentDto,
   ): Promise<ResponseType<PostType> | undefined> {
     const data = await this.postsService.createComment(postId, createCommentDto);
+    return data;
+  }
+
+  @Put('change-comment/:postId/:commentId')
+  async changeComment(
+    @Param('postId') postId: string,
+    @Param('commentId') commentId: string,
+    @Body() changeCommentDto: ChangeCommentDto,
+  ): Promise<ResponseType<PostType> | undefined> {
+    const data = await this.postsService.changeComment(postId, commentId, changeCommentDto);
     return data;
   }
 }

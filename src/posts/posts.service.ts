@@ -11,6 +11,7 @@ import { UpdatePostDto } from './dto/update-post-dto';
 import { User, UserDocument } from 'src/users/schemas/user.schema';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { ChangeCommentDto } from './dto/change-post.dto';
 
 @Injectable()
 export class PostsService {
@@ -428,6 +429,54 @@ export class PostsService {
             'statistics.numberComments': 1,
           },
         },
+      },
+      { new: true },
+    );
+
+    return {
+      status: 'success',
+      code: 200,
+      success: true,
+      message: '',
+      data: newPost,
+    };
+  }
+
+  async changeComment(
+    postId: string,
+    commentId: string,
+    changeCommentDto: ChangeCommentDto,
+  ): Promise<ResponseType<PostType> | undefined> {
+    const post = await this.PostModel.findById(postId);
+    const comment = post.statistics.comments.find(item => item.id === commentId);
+
+    if (!post) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.NOT_FOUND,
+          success: false,
+          message: 'Post with current id not found.',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const updateComment = {
+      id: comment.id,
+      owner: comment.owner,
+      text: changeCommentDto.text,
+      numberLikes: comment.numberLikes,
+      answers: comment.answers,
+    };
+
+    const oldComments = post.statistics.comments.filter(item => item.id !== commentId);
+    const result = [...oldComments, updateComment];
+
+    const newPost = await this.PostModel.findByIdAndUpdate(
+      postId,
+      {
+        statistics: { comments: result },
       },
       { new: true },
     );
