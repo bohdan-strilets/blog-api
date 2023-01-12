@@ -299,4 +299,36 @@ export class PostsService {
       };
     }
   }
+
+  async addView(postId: string): Promise<ResponseType<PostType> | undefined> {
+    const post = await this.PostModel.findByIdAndUpdate(
+      postId,
+      {
+        $inc: {
+          'statistics.numberViews': 1,
+        },
+      },
+      { new: true },
+    );
+
+    if (!post) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.NOT_FOUND,
+          success: false,
+          message: 'Post with current id not found.',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return {
+      status: 'success',
+      code: 200,
+      success: true,
+      message: '',
+      data: post,
+    };
+  }
 }

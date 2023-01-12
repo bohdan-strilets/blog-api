@@ -90,4 +90,10 @@ export class PostsController {
     const data = await this.postsService.addLike(postId, id);
     return data;
   }
+
+  @Get('add-view/:postId')
+  async addView(@Param('postId') postId: string): Promise<ResponseType<PostType> | undefined> {
+    const data = await this.postsService.addView(postId);
+    return data;
+  }
 }
