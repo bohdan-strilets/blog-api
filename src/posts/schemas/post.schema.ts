@@ -3,6 +3,7 @@ import mongoose, { HydratedDocument } from 'mongoose';
 import { PostStatistics } from './post-statistics.schema';
 import { User } from 'src/users/schemas/user.schema';
 import { PostBodyType } from '../types/post-body.type';
+import { WhoLikes } from './who-likes.schema';
 
 export type PostDocument = HydratedDocument<Post>;
 
@@ -22,6 +23,9 @@ export class Post {
 
   @Prop({ default: {} })
   statistics: PostStatistics;
+
+  @Prop({ default: [] })
+  whoLikes: WhoLikes[];
 
   @Prop({ default: false })
   isPublic: boolean;

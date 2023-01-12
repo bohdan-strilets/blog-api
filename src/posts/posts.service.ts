@@ -6,10 +6,14 @@ import { ResponseType } from './types/response.type';
 import { PostType } from './types/post.type';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post-dto';
+import { User, UserDocument } from 'src/users/schemas/user.schema';
 
 @Injectable()
 export class PostsService {
-  constructor(@InjectModel(Post.name) private PostModel: Model<PostDocument>) {}
+  constructor(
+    @InjectModel(Post.name) private PostModel: Model<PostDocument>,
+    @InjectModel(User.name) private UserModel: Model<UserDocument>,
+  ) {}
 
   async getAllPostsUser(
     id: Types.ObjectId,
@@ -216,6 +220,73 @@ export class PostsService {
       const newPost = await this.PostModel.findByIdAndUpdate(
         postId,
         { isPublic: true },
+        { new: true },
+      );
+
+      return {
+        status: 'success',
+        code: 200,
+        success: true,
+        message: '',
+        data: newPost,
+      };
+    }
+  }
+
+  async addLike(postId: string, id: Types.ObjectId): Promise<ResponseType<PostType> | undefined> {
+    const post = await this.PostModel.findById(postId);
+    const user = await this.UserModel.findById(id);
+
+    if (!post) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.NOT_FOUND,
+          success: false,
+          message: 'Post with current id not found.',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    if (!post.whoLikes.find(item => item.id.toString() === id.toString())) {
+      const userWhoLiked = {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      };
+
+      const newPost = await this.PostModel.findByIdAndUpdate(
+        postId,
+        {
+          whoLikes: [...post.whoLikes, userWhoLiked],
+          $inc: {
+            'statistics.numberLikes': 1,
+          },
+        },
+        { new: true },
+      );
+
+      return {
+        status: 'success',
+        code: 200,
+        success: true,
+        message: '',
+        data: newPost,
+      };
+    }
+
+    if (post.whoLikes.find(item => item.id.toString() === id.toString())) {
+      const result = post.whoLikes.filter(item => item.id.toString() !== id.toString());
+
+      const newPost = await this.PostModel.findByIdAndUpdate(
+        postId,
+        {
+          whoLikes: result,
+          $inc: {
+            'statistics.numberLikes': -1,
+          },
+        },
         { new: true },
       );
 

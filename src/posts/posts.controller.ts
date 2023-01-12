@@ -9,7 +9,6 @@ import {
   Param,
   Body,
   Delete,
-  Patch,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
@@ -68,7 +67,7 @@ export class PostsController {
     return data;
   }
 
-  @Patch('update-favorite/:postId')
+  @Get('update-favorite/:postId')
   async updateFavorite(
     @Param('postId') postId: string,
   ): Promise<ResponseType<PostType> | undefined> {
@@ -76,9 +75,19 @@ export class PostsController {
     return data;
   }
 
-  @Patch('update-public/:postId')
+  @Get('update-public/:postId')
   async updatePublic(@Param('postId') postId: string): Promise<ResponseType<PostType> | undefined> {
     const data = await this.postsService.updatePublic(postId);
+    return data;
+  }
+
+  @Get('add-like/:postId')
+  async addLike(
+    @Req() req: Request,
+    @Param('postId') postId: string,
+  ): Promise<ResponseType<PostType> | undefined> {
+    const { id } = req.user as CreateTokenDto;
+    const data = await this.postsService.addLike(postId, id);
     return data;
   }
 }
